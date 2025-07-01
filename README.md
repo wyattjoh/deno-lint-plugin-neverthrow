@@ -1,78 +1,162 @@
-# eslint-plugin-neverthrow
+# deno-lint-plugin-neverthrow
 
-[![npm version](https://img.shields.io/npm/v/eslint-plugin-neverthrow.svg)](https://www.npmjs.com/package/eslint-plugin-neverthrow)
-[![Downloads/month](https://img.shields.io/npm/dm/eslint-plugin-neverthrow.svg)](http://www.npmtrends.com/eslint-plugin-neverthrow)
+A Deno lint plugin for [neverthrow](https://github.com/supermacro/neverthrow) that enforces proper handling of Result types to prevent unhandled errors.
 
 ## Installation
 
-Use [npm](https://www.npmjs.com/) or a compatible tool to install.
+### From JSR
 
 ```bash
-npm install --save-dev eslint eslint-plugin-neverthrow @typescript-eslint/parser
+deno add jsr:@wyattjoh/deno-lint-plugin-neverthrow
 ```
 
-### Requirements
+### Local Development
 
-- Node.js v8.10.0 or newer versions.
-- ESLint v5.16.0 or newer versions.
-- @typescript-eslint/parser
+1. Clone this repository
+2. Add the plugin to your `deno.json`:
+
+```json
+{
+  "lint": {
+    "plugins": ["./path/to/plugin/mod.ts"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["neverthrow/must-use-result"]
+    }
+  }
+}
+```
 
 ## Usage
 
-Write your config file such as `.eslintrc.js`.
+Configure the plugin in your `deno.json`:
 
-```js
-module.exports = {
-  plugins: ['neverthrow'],
-  rules: {
-    'neverthrow/must-use-result': 'error',
-  },
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 2021,
-    sourceType: 'module',
-    project: ['./tsconfig.json'],
-    tsconfigRootDir: __dirname,
-  },
-};
+```json
+{
+  "lint": {
+    "plugins": ["jsr:@wyattjoh/deno-lint-plugin-neverthrow"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["neverthrow/must-use-result"]
+    }
+  }
+}
 ```
 
-See also [Configuring ESLint](https://eslint.org/docs/user-guide/configuring).
+Then run the linter:
 
-## Configs
-
-- `neverthrow/recommended` ... enables the recommended rules.
+```bash
+deno lint
+```
 
 ## Rules
 
-<!--RULE_TABLE_BEGIN-->
+### `neverthrow/must-use-result`
 
-### Possible Errors
+Enforces that Result types from neverthrow are properly handled to prevent unhandled errors.
 
-| Rule ID                                                       | Description                                                                                |     |
-| :------------------------------------------------------------ | :----------------------------------------------------------------------------------------- | :-: |
-| [neverthrow/must-use-result](./docs/rules/must-use-result.md) | Not handling neverthrow result is a possible error because errors could remain unhandled. | ⭐️ |
+#### ❌ Incorrect
 
-<!--RULE_TABLE_END-->
+```typescript
+import { err, ok, Result } from "neverthrow";
 
-## Semantic Versioning Policy
+// Unhandled Result calls
+ok("value");
+err("error");
+new Ok("value");
+new Err("error");
 
-This plugin follows [Semantic Versioning](http://semver.org/) and [ESLint's Semantic Versioning Policy](https://github.com/eslint/eslint#semantic-versioning-policy).
+// Functions with "result" in the name (heuristic)
+getResult();
 
-## Changelog
+// Assigned but not handled
+const result = ok("value");
+console.log("not using result");
+```
 
-- [GitHub Releases](https://github.com/mdbetancourt/eslint-plugin-neverthrow/releases)
+#### ✅ Correct
+
+```typescript
+import { err, ok, Result } from "neverthrow";
+
+// Properly handled with unwrapOr
+ok("value").unwrapOr("default");
+
+// Properly handled with match
+ok("value").match(
+  (value) => console.log(value),
+  (error) => console.error(error),
+);
+
+// Properly handled with _unsafeUnwrap
+ok("value")._unsafeUnwrap();
+
+// Method chaining with final handler
+ok("value")
+  .map((x) => x.toUpperCase())
+  .unwrapOr("default");
+
+// Returning Results (considered handled)
+function processResult(): Result<string, Error> {
+  return ok("value").map((x) => x.toUpperCase());
+}
+
+// Arrow function returns
+const processResult = () => ok("value").map((x) => x.toUpperCase());
+```
+
+## Limitations
+
+This Deno lint plugin uses AST-based analysis without TypeScript's type checker, which means:
+
+- **May have false positives**: Non-Result objects might be flagged if they match Result patterns
+- **May miss some cases**: Results passed through complex type transformations might not be detected
+- **Heuristic-based**: Uses naming patterns (functions with "result" in the name) and import tracking
+- **Less accurate**: Cannot perform the sophisticated type analysis of the original ESLint plugin
+
+For the most accurate Result type checking, consider using the original [eslint-plugin-neverthrow](https://github.com/mdbetancourt/eslint-plugin-neverthrow) with TypeScript-aware ESLint configuration.
+
+## Development
+
+### Commands
+
+- `deno test` - Run tests
+- `deno lint` - Lint the codebase
+- `deno fmt` - Format the code
+- `deno check mod.ts` - Type check
+
+### Testing
+
+```bash
+deno test --allow-read --allow-write
+```
+
+### Publishing
+
+To publish to JSR:
+
+```bash
+deno publish
+```
+
+## Differences from ESLint Plugin
+
+This Deno lint plugin is a port of the original ESLint plugin but with significant architectural differences:
+
+1. **No TypeChecker**: Uses AST pattern matching instead of TypeScript type analysis
+2. **Simpler Detection**: Focuses on obvious Result usage patterns
+3. **Import Tracking**: Tracks neverthrow imports to identify Result factory functions
+4. **Heuristic-Based**: Uses naming patterns for function calls that likely return Results
 
 ## Contributing
 
-Welcome your contribution!
+Contributions are welcome! Please feel free to submit issues and enhancement requests.
 
-See also [ESLint Contribution Guide](https://eslint.org/docs/developer-guide/contributing/).
+## License
 
-### Development Tools
+MIT
 
-- `npm test` runs tests.
-- `npm run update` updates the package version. And it updates `src/configs/recommended.ts`, `lib/index.ts`, and `README.md`'s rule table. See also [npm version CLI command](https://docs.npmjs.com/cli/version).
-- `npm run add-rule <RULE_ID>` creates three files to add a new rule.
+## Related
 
-**forked from [mysticatea/template-eslint-plugin](https://github.com/mysticatea/template-eslint-plugin)**
+- [neverthrow](https://github.com/supermacro/neverthrow) - The Result type library
+- [eslint-plugin-neverthrow](https://github.com/mdbetancourt/eslint-plugin-neverthrow) - The original ESLint version
