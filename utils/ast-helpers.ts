@@ -37,8 +37,10 @@ export const NEVERTHROW_IMPORTS = [
  * Checks if a node is an identifier that might be a Result
  */
 export function isResultIdentifier(node: Deno.lint.Node): boolean {
-  return node.type === "Identifier" &&
-    NEVERTHROW_IMPORTS.some((name) => node.name?.includes(name));
+  return (
+    node.type === "Identifier" &&
+    NEVERTHROW_IMPORTS.some((name) => node.name?.includes(name))
+  );
 }
 
 /**
@@ -53,8 +55,10 @@ export function isResultConstructorCall(node: Deno.lint.Node): boolean {
 
   // Direct constructor calls: new Ok(), new Err()
   if (node.type === "NewExpression") {
-    return callee.type === "Identifier" &&
-      (callee.name === "Ok" || callee.name === "Err");
+    return (
+      callee.type === "Identifier" &&
+      (callee.name === "Ok" || callee.name === "Err")
+    );
   }
 
   // Factory function calls: ok(), err(), okAsync(), errAsync()
@@ -74,8 +78,9 @@ export function isResultMethodCall(node: Deno.lint.Node): boolean {
   }
 
   const property = node.property;
-  return property.type === "Identifier" &&
-    ALL_RESULT_METHODS.includes(property.name);
+  return (
+    property.type === "Identifier" && ALL_RESULT_METHODS.includes(property.name)
+  );
 }
 
 /**
@@ -87,8 +92,9 @@ export function isHandledMethodCall(node: Deno.lint.Node): boolean {
   }
 
   const property = node.property;
-  return property.type === "Identifier" &&
-    HANDLED_METHODS.includes(property.name);
+  return (
+    property.type === "Identifier" && HANDLED_METHODS.includes(property.name)
+  );
 }
 
 /**
@@ -136,43 +142,15 @@ export function hasResultMethodChain(node: Deno.lint.Node): boolean {
 }
 
 /**
- * Checks if a call expression is being handled (called with a handler method)
- */
-export function isCallExpressionHandled(node: Deno.lint.Node): boolean {
-  if (!node.parent) {
-    return false;
-  }
-
-  // Check if this call is part of a method chain that ends with a handler
-  let current = node.parent;
-
-  while (current) {
-    if (
-      current.type === "CallExpression" &&
-      current.callee?.type === "MemberExpression"
-    ) {
-      const methodName = getMethodName(current.callee);
-      if (methodName && HANDLED_METHODS.includes(methodName)) {
-        return true;
-      }
-      // Continue up the chain
-      current = current.parent;
-    } else if (current.type === "MemberExpression") {
-      // Non-called method access - continue up
-      current = current.parent;
-    } else {
-      break;
-    }
-  }
-
-  return false;
-}
-
-/**
  * Checks if a node is in a return statement or arrow function body
  */
-export function isInReturnContext(node: Deno.lint.Node): boolean {
-  let current = node.parent;
+export function isInReturnContext(
+  node:
+    | Deno.lint.CallExpression
+    | Deno.lint.NewExpression
+    | Deno.lint.Expression,
+): boolean {
+  let current: Deno.lint.Node | null = node.parent;
 
   while (current) {
     if (current.type === "ReturnStatement") {
@@ -182,15 +160,17 @@ export function isInReturnContext(node: Deno.lint.Node): boolean {
     // Check if we're in an arrow function body (direct or nested)
     if (current.type === "ArrowFunctionExpression") {
       // Check if this node is part of the arrow function's body expression
-      const bodyNode = current.body;
-      let checkNode = node;
+      const bodyNode = current.body as Deno.lint.Node;
+      let checkNode: Deno.lint.Node | null = node;
 
       // Walk up from our node to see if we reach the arrow function body
       while (checkNode && checkNode !== bodyNode) {
-        if (checkNode.parent === bodyNode) {
+        if ("parent" in checkNode && checkNode.parent === bodyNode) {
           return true;
         }
-        checkNode = checkNode.parent;
+        checkNode = "parent" in checkNode
+          ? (checkNode.parent as Deno.lint.Node)
+          : null;
       }
 
       // Direct body match
@@ -208,7 +188,7 @@ export function isInReturnContext(node: Deno.lint.Node): boolean {
       break;
     }
 
-    current = current.parent;
+    current = "parent" in current ? (current.parent as Deno.lint.Node) : null;
   }
 
   return false;
