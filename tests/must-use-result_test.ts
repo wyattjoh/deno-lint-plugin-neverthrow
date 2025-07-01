@@ -220,8 +220,10 @@ Deno.test("mustUseResult - edge cases", async (t) => {
     assertEquals(diagnostics.length, 0);
   });
 
-  await t.step("should not report utility functions with 'result' in name", () => {
-    const code = createTestCode(`
+  await t.step(
+    "should not report utility functions with 'result' in name",
+    () => {
+      const code = createTestCode(`
       function isResultConstructorCall(node: any): boolean {
         return node.type === "CallExpression";
       }
@@ -235,12 +237,15 @@ Deno.test("mustUseResult - edge cases", async (t) => {
       checkResult("test");
     `);
 
-    const diagnostics = runLint(code);
-    assertEquals(diagnostics.length, 0);
-  });
+      const diagnostics = runLint(code);
+      assertEquals(diagnostics.length, 0);
+    },
+  );
 
-  await t.step("should not report result-named functions in conditional contexts", () => {
-    const code = createTestCode(`
+  await t.step(
+    "should not report result-named functions in conditional contexts",
+    () => {
+      const code = createTestCode(`
       function hasResult(): boolean {
         return true;
       }
@@ -255,9 +260,10 @@ Deno.test("mustUseResult - edge cases", async (t) => {
       }
     `);
 
-    const diagnostics = runLint(code);
-    assertEquals(diagnostics.length, 0);
-  });
+      const diagnostics = runLint(code);
+      assertEquals(diagnostics.length, 0);
+    },
+  );
 });
 
 Deno.test("mustUseResult - async Result patterns", async (t) => {
@@ -389,14 +395,17 @@ Deno.test("mustUseResult - variable assignment patterns", async (t) => {
     assertEquals(diagnostics.length, 1);
   });
 
-  await t.step("should allow Result in variable declaration with immediate handling", () => {
-    const code = createTestCode(`
+  await t.step(
+    "should allow Result in variable declaration with immediate handling",
+    () => {
+      const code = createTestCode(`
       const value = ok("test").unwrapOr("default");
     `);
 
-    const diagnostics = runLint(code);
-    assertEquals(diagnostics.length, 0);
-  });
+      const diagnostics = runLint(code);
+      assertEquals(diagnostics.length, 0);
+    },
+  );
 
   await t.step("should report multiple unhandled Results", () => {
     const code = createTestCode(`
@@ -474,7 +483,7 @@ new ErrorClass("error");
     `.trim();
 
     const diagnostics = runLint(code);
-    // Only ok("value") is caught because our AST-based approach 
+    // Only ok("value") is caught because our AST-based approach
     // can't track that ErrorClass is an alias for Err
     assertEquals(diagnostics.length, 1);
   });
@@ -536,8 +545,10 @@ Deno.test("mustUseResult - nested contexts", async (t) => {
 });
 
 Deno.test("mustUseResult - conditional and loop patterns", async (t) => {
-  await t.step("should report Results in if statements without handling", () => {
-    const code = createTestCode(`
+  await t.step(
+    "should report Results in if statements without handling",
+    () => {
+      const code = createTestCode(`
       if (true) {
         ok("value");
       } else {
@@ -545,18 +556,22 @@ Deno.test("mustUseResult - conditional and loop patterns", async (t) => {
       }
     `);
 
-    const diagnostics = runLint(code);
-    assertEquals(diagnostics.length, 2);
-  });
+      const diagnostics = runLint(code);
+      assertEquals(diagnostics.length, 2);
+    },
+  );
 
-  await t.step("should allow Results in conditional expressions when handled", () => {
-    const code = createTestCode(`
+  await t.step(
+    "should allow Results in conditional expressions when handled",
+    () => {
+      const code = createTestCode(`
       const value = condition ? ok("yes").unwrapOr("") : err("no").unwrapOr("");
     `);
 
-    const diagnostics = runLint(code);
-    assertEquals(diagnostics.length, 0);
-  });
+      const diagnostics = runLint(code);
+      assertEquals(diagnostics.length, 0);
+    },
+  );
 
   await t.step("should report Results in loops without handling", () => {
     const code = createTestCode(`
@@ -635,8 +650,10 @@ Deno.test("mustUseResult - complex expressions", async (t) => {
     assertEquals(diagnostics.length, 2);
   });
 
-  await t.step("should handle Results as function arguments when handled", () => {
-    const code = createTestCode(`
+  await t.step(
+    "should handle Results as function arguments when handled",
+    () => {
+      const code = createTestCode(`
       function processValue(val: string) {
         return val.toUpperCase();
       }
@@ -644,9 +661,10 @@ Deno.test("mustUseResult - complex expressions", async (t) => {
       processValue(ok("test").unwrapOr("default"));
     `);
 
-    const diagnostics = runLint(code);
-    assertEquals(diagnostics.length, 0);
-  });
+      const diagnostics = runLint(code);
+      assertEquals(diagnostics.length, 0);
+    },
+  );
 
   await t.step("should report Results as unhandled function arguments", () => {
     const code = createTestCode(`

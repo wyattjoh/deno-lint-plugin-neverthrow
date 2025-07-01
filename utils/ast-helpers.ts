@@ -184,7 +184,7 @@ export function isInReturnContext(node: Deno.lint.Node): boolean {
       // Check if this node is part of the arrow function's body expression
       const bodyNode = current.body;
       let checkNode = node;
-      
+
       // Walk up from our node to see if we reach the arrow function body
       while (checkNode && checkNode !== bodyNode) {
         if (checkNode.parent === bodyNode) {
@@ -192,7 +192,7 @@ export function isInReturnContext(node: Deno.lint.Node): boolean {
         }
         checkNode = checkNode.parent;
       }
-      
+
       // Direct body match
       if (bodyNode === node) {
         return true;

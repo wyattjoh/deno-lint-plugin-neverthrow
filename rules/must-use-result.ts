@@ -15,7 +15,7 @@ import {
  * Checks if a call expression is immediately followed by a handling method
  */
 function isImmediatelyHandled(
-  node: Deno.lint.CallExpression | Deno.lint.NewExpression
+  node: Deno.lint.CallExpression | Deno.lint.NewExpression,
 ): boolean {
   // Check if this node is part of a method chain that ends with a handler
   let current = node.parent;
