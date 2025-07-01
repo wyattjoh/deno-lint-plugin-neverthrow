@@ -36,7 +36,7 @@ export const NEVERTHROW_IMPORTS = [
 /**
  * Checks if a node is an identifier that might be a Result
  */
-export function isResultIdentifier(node: any): boolean {
+export function isResultIdentifier(node: Deno.lint.Node): boolean {
   return node.type === "Identifier" &&
     NEVERTHROW_IMPORTS.some((name) => node.name?.includes(name));
 }
@@ -44,7 +44,7 @@ export function isResultIdentifier(node: any): boolean {
 /**
  * Checks if a node is a call expression that might create a Result
  */
-export function isResultConstructorCall(node: any): boolean {
+export function isResultConstructorCall(node: Deno.lint.Node): boolean {
   if (node.type !== "CallExpression" && node.type !== "NewExpression") {
     return false;
   }
@@ -68,7 +68,7 @@ export function isResultConstructorCall(node: any): boolean {
 /**
  * Checks if a member expression is calling a Result method
  */
-export function isResultMethodCall(node: any): boolean {
+export function isResultMethodCall(node: Deno.lint.Node): boolean {
   if (node.type !== "MemberExpression") {
     return false;
   }
@@ -81,7 +81,7 @@ export function isResultMethodCall(node: any): boolean {
 /**
  * Checks if a method call is a Result handling method
  */
-export function isHandledMethodCall(node: any): boolean {
+export function isHandledMethodCall(node: Deno.lint.Node): boolean {
   if (node.type !== "MemberExpression") {
     return false;
   }
@@ -94,7 +94,7 @@ export function isHandledMethodCall(node: any): boolean {
 /**
  * Gets the method name from a member expression
  */
-export function getMethodName(node: any): string | null {
+export function getMethodName(node: Deno.lint.Node): string | null {
   if (node.type !== "MemberExpression") {
     return null;
   }
@@ -106,7 +106,7 @@ export function getMethodName(node: any): string | null {
 /**
  * Checks if a node is likely a Result based on method chaining patterns
  */
-export function hasResultMethodChain(node: any): boolean {
+export function hasResultMethodChain(node: Deno.lint.Node): boolean {
   // Look for method chains like: something.map().andThen()
   let current = node;
   let resultMethodCount = 0;
@@ -138,7 +138,7 @@ export function hasResultMethodChain(node: any): boolean {
 /**
  * Checks if a call expression is being handled (called with a handler method)
  */
-export function isCallExpressionHandled(node: any): boolean {
+export function isCallExpressionHandled(node: Deno.lint.Node): boolean {
   if (!node.parent) {
     return false;
   }
@@ -171,7 +171,7 @@ export function isCallExpressionHandled(node: any): boolean {
 /**
  * Checks if a node is in a return statement or arrow function body
  */
-export function isInReturnContext(node: any): boolean {
+export function isInReturnContext(node: Deno.lint.Node): boolean {
   let current = node.parent;
 
   while (current) {
@@ -182,7 +182,7 @@ export function isInReturnContext(node: any): boolean {
     // Check if we're in an arrow function body (direct or nested)
     if (current.type === "ArrowFunctionExpression") {
       // Check if this node is part of the arrow function's body expression
-      let bodyNode = current.body;
+      const bodyNode = current.body;
       let checkNode = node;
       
       // Walk up from our node to see if we reach the arrow function body
@@ -220,7 +220,7 @@ export function isInReturnContext(node: any): boolean {
 export class ImportTracker {
   private neverthrowImports = new Set<string>();
 
-  trackImport(node: any): void {
+  trackImport(node: Deno.lint.Node): void {
     if (node.type !== "ImportDeclaration") {
       return;
     }

@@ -117,7 +117,6 @@ export const mustUseResult: Deno.lint.Rule = {
           return;
         }
 
-        // deno-lint-ignore neverthrow/must-use-result
         if (isResultConstructorCall(node)) {
           context.report({
             node,
