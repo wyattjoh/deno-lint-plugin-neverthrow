@@ -5,7 +5,7 @@ import plugin from "../mod.ts";
  * Helper function to run the neverthrow lint plugin on test code.
  * This function executes the plugin against the provided code and returns
  * any lint diagnostics that were found.
- * 
+ *
  * @param code - The TypeScript code to lint
  * @returns Array of lint diagnostics found in the code
  */
@@ -17,7 +17,7 @@ function runLint(code: string) {
  * Helper function to create test code with neverthrow imports.
  * This function wraps the provided code with standard neverthrow import
  * statements to simulate a typical usage scenario.
- * 
+ *
  * @param code - The code to wrap with neverthrow imports
  * @returns Complete test code with neverthrow imports
  */

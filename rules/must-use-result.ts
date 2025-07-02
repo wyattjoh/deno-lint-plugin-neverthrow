@@ -15,7 +15,7 @@ import {
  * Checks if a call expression is immediately followed by a handling method.
  * This function traverses the AST parent chain to determine if a Result-producing
  * call expression is immediately handled by a method like match(), unwrapOr(), or _unsafeUnwrap().
- * 
+ *
  * @param node - The CallExpression or NewExpression node to check
  * @returns True if the node is immediately followed by a handling method call
  */
@@ -54,18 +54,18 @@ function isImmediatelyHandled(
  * Deno lint rule that enforces proper handling of neverthrow Result types.
  * This rule ensures that Result instances are properly handled using methods like
  * match(), unwrapOr(), or _unsafeUnwrap() to prevent unhandled Results.
- * 
+ *
  * The rule uses AST-based analysis to detect Result patterns without relying on
  * TypeScript's type checker, making it suitable for Deno's lint system.
- * 
+ *
  * @example
  * // ❌ Bad - unhandled Result
  * ok("value");
- * 
+ *
  * @example
  * // ✅ Good - handled Result
  * ok("value").unwrapOr("default");
- * 
+ *
  * @example
  * // ✅ Good - Result returned from function
  * function getResult() {
@@ -75,7 +75,7 @@ function isImmediatelyHandled(
 export const mustUseResult: Deno.lint.Rule = {
   /**
    * Creates the rule implementation with visitor methods for different AST node types.
-   * 
+   *
    * @param context - The lint rule context providing reporting and utility functions
    * @returns Object containing visitor methods for AST nodes
    */

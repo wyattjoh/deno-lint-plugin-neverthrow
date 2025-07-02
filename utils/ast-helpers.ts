@@ -36,7 +36,7 @@ export const NEVERTHROW_IMPORTS = [
 /**
  * Checks if a node is an identifier that might be a Result by examining if the
  * identifier name contains common neverthrow import patterns.
- * 
+ *
  * @param node - The AST node to check
  * @returns True if the node is an identifier that might represent a Result
  */
@@ -51,7 +51,7 @@ export function isResultIdentifier(node: Deno.lint.Node): boolean {
  * Checks if a node is a call expression that creates a Result instance.
  * This includes both constructor calls (new Ok(), new Err()) and factory
  * function calls (ok(), err(), okAsync(), errAsync()).
- * 
+ *
  * @param node - The AST node to check
  * @returns True if the node creates a Result instance
  */
@@ -82,7 +82,7 @@ export function isResultConstructorCall(node: Deno.lint.Node): boolean {
  * Checks if a member expression is calling a method that belongs to the Result type.
  * This includes both handling methods (match, unwrapOr, _unsafeUnwrap) and
  * transformation methods (map, mapErr, andThen, etc.).
- * 
+ *
  * @param node - The AST node to check
  * @returns True if the node is calling a Result method
  */
@@ -101,7 +101,7 @@ export function isResultMethodCall(node: Deno.lint.Node): boolean {
  * Checks if a method call is a Result handling method that properly consumes
  * the Result (match, unwrapOr, _unsafeUnwrap). These methods indicate that
  * the Result has been properly handled.
- * 
+ *
  * @param node - The AST node to check
  * @returns True if the node is calling a Result handling method
  */
@@ -120,7 +120,7 @@ export function isHandledMethodCall(node: Deno.lint.Node): boolean {
  * Extracts the method name from a member expression node.
  * This utility function safely extracts the property name from expressions
  * like 'obj.methodName'.
- * 
+ *
  * @param node - The AST node to extract the method name from
  * @returns The method name if it's an identifier, null otherwise
  */
@@ -137,7 +137,7 @@ export function getMethodName(node: Deno.lint.Node): string | null {
  * Checks if a node is likely a Result based on method chaining patterns.
  * This function analyzes method call chains to detect Result-like patterns
  * by counting Result-specific method calls in the chain.
- * 
+ *
  * @param node - The AST node to analyze
  * @returns True if the node appears to be part of a Result method chain
  */
@@ -174,7 +174,7 @@ export function hasResultMethodChain(node: Deno.lint.Node): boolean {
  * Checks if a node is in a return context (return statement or arrow function body).
  * Results that are returned from functions are considered properly handled since
  * they delegate the responsibility to the caller.
- * 
+ *
  * @param node - The expression node to check
  * @returns True if the node is in a return context
  */
@@ -240,7 +240,7 @@ export class ImportTracker {
    * Tracks import declarations from the neverthrow package.
    * This method analyzes import statements and registers all identifiers
    * imported from 'neverthrow' for later reference.
-   * 
+   *
    * @param node - The import declaration node to process
    */
   trackImport(node: Deno.lint.Node): void {
@@ -265,7 +265,7 @@ export class ImportTracker {
 
   /**
    * Checks if a given identifier name was imported from neverthrow.
-   * 
+   *
    * @param name - The identifier name to check
    * @returns True if the name was imported from neverthrow
    */
