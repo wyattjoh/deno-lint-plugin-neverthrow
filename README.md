@@ -18,7 +18,7 @@ deno add jsr:@wyattjoh/deno-lint-plugin-neverthrow
 ```json
 {
   "lint": {
-    "plugins": ["./path/to/plugin/mod.ts"],
+    "plugins": ["jsr:@wyattjoh/deno-lint-plugin-neverthrow"],
     "rules": {
       "tags": ["recommended"],
       "include": ["neverthrow/must-use-result"]
